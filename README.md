@@ -8,42 +8,6 @@ A minimalist, modern management and analytics console for Apigee AI Gateways. It
 
 ---
 
-## Architecture Overview
-
-```mermaid
-flowchart TD
-    subgraph UI ["Frontend (Vanilla HTML / CSS / JS)"]
-        Dashboard["Analytics Dashboard<br/>(Spend, Tokens, TTFT)"]
-        PriceListUI["Model Price List Manager<br/>(Light / Dark Mode)"]
-        ProductUI["Apigee Products & Budgets<br/>(Token <-> USD Converter)"]
-    end
-
-    subgraph Service ["Go Backend (Cloud Run)"]
-        Router["HTTP Mux & Static Server"]
-        Client["Apigee Client (ADC Auth)"]
-        Calc["Bidirectional Budget Engine"]
-    end
-
-    subgraph Apigee ["Google Cloud Apigee"]
-        KVM["KVM: AI-Config.PriceList<br/>(Per Environment)"]
-        Products["API Products<br/>(llmOperationGroup & Quotas)"]
-        Analytics["Apigee BigQuery Analytics<br/>(12 AI Data Collectors)"]
-    end
-
-    Dashboard --> Router
-    PriceListUI --> Router
-    ProductUI --> Router
-
-    Router --> Calc
-    Router --> Client
-
-    Client -->|Read / Write PriceList| KVM
-    Client -->|Sync Quotas & Ops| Products
-    Client -->|Query Stats & Metrics| Analytics
-```
-
----
-
 ## Key Features
 
 1. **AI Model Price List Management (`AI-Config.PriceList`)**:
