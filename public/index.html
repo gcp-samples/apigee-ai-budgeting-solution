@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Apigee AI Budgeting & Analytics Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-logo">AI</div>
+        <div>
+          <div class="brand-title">
+            Apigee AI Budgeting
+            <span class="brand-badge">Console</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="control-item">
+          <label for="org-display">Org:</label>
+          <span id="org-display" class="badge badge-gray" style="font-family: monospace; font-size: 0.85rem;">loading...</span>
+        </div>
+
+        <div class="control-item">
+          <label for="env-selector">Env:</label>
+          <select id="env-selector" class="select-control">
+            <option value="dev">dev</option>
+          </select>
+        </div>
+
+        <div class="control-item">
+          <label for="time-range-selector">Range:</label>
+          <select id="time-range-selector" class="select-control">
+            <option value="24h">Last 24 Hours</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d" selected>Last 30 Days</option>
+            <option value="all">Custom / All Time</option>
+          </select>
+        </div>
+
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light / Dark Mode" aria-label="Toggle theme">
+          <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="app-nav">
+    <div class="nav-container">
+      <button class="nav-tab active" data-tab="tab-analytics">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Analytics Dashboard
+      </button>
+      <button class="nav-tab" data-tab="tab-prices">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Model Price Lists (KVM)
+      </button>
+      <button class="nav-tab" data-tab="tab-products">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Apigee Products & AI Budgets
+      </button>
+      <button class="nav-tab" data-tab="tab-developers">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Users & Groups
+      </button>
+      <button class="nav-tab" data-tab="tab-reference">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Architecture & Reference
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <!-- TAB 1: Analytics Dashboard -->
+    <section id="tab-analytics" class="tab-pane active">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">AI Usage & Budget Analytics</h1>
+          <p class="section-subtitle">Real-time spend and token consumption aggregated from Apigee Data Collectors</p>
+        </div>
+        <div class="action-buttons" style="display: flex; align-items: center; gap: 0.75rem;">
+          <button id="btn-refresh-analytics" class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <span id="btn-refresh-text">Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid-cards">
+        <div class="kpi-card is-loading">
+          <div class="kpi-header">
+            <span>Total AI Spend</span>
+            <span class="badge badge-green">USD</span>
+          </div>
+          <div class="kpi-value" id="kpi-total-spend">$0.00</div>
+          <div class="kpi-subtext" id="kpi-spend-breakdown">Prompt: $0.00 | Output: $0.00</div>
+        </div>
+
+        <div class="kpi-card is-loading">
+          <div class="kpi-header">
+            <span>Total Token Count</span>
+            <span class="badge badge-blue">Tokens</span>
+          </div>
+          <div class="kpi-value" id="kpi-total-tokens">0</div>
+          <div class="kpi-subtext" id="kpi-tokens-breakdown">Prompt: 0 | Output: 0</div>
+        </div>
+
+        <div class="kpi-card is-loading">
+          <div class="kpi-header">
+            <span>Avg Latency (TTFT)</span>
+            <span class="badge badge-purple">Time to First Token</span>
+          </div>
+          <div class="kpi-value" id="kpi-avg-ttft">0 ms</div>
+          <div class="kpi-subtext">Across all streaming & standard calls</div>
+        </div>
+
+        <div class="kpi-card is-loading">
+          <div class="kpi-header">
+            <span>Total AI API Requests</span>
+            <span class="badge badge-gray">Calls</span>
+          </div>
+          <div class="kpi-value" id="kpi-total-calls">0</div>
+          <div class="kpi-subtext" id="kpi-streaming-breakdown">Streaming: 0 | Non-streaming: 0</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-title">AI Spend & Token Consumption Timeline</span>
+            <span class="badge badge-gray" id="timeline-metric-tag">Daily aggregated</span>
+          </div>
+          <div class="chart-canvas-container">
+            <div id="overlay-timeline" class="chart-loading-overlay active">
+              <div class="spinner-ring"></div>
+              <div class="chart-loading-text">Querying Apigee metrics...</div>
+            </div>
+            <canvas id="chart-timeline"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-title">Spend by AI Model</span>
+            <span class="badge badge-gray">Distribution</span>
+          </div>
+          <div class="chart-canvas-container">
+            <div id="overlay-model-dist" class="chart-loading-overlay active">
+              <div class="spinner-ring"></div>
+              <div class="chart-loading-text">Aggregating model distribution...</div>
+            </div>
+            <canvas id="chart-model-dist"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Granular Breakdown Section -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-weight: 600; font-size: 0.85rem;">Dimension:</span>
+            <button class="btn btn-sm btn-primary dim-btn" data-dim="dc_ai_model">Model</button>
+            <button class="btn btn-sm btn-secondary dim-btn" data-dim="dc_ai_user">User</button>
+            <button class="btn btn-sm btn-secondary dim-btn" data-dim="dc_ai_cost_center">Cost Center</button>
+            <button class="btn btn-sm btn-secondary dim-btn" data-dim="dc_ai_provider">Provider</button>
+            <button class="btn btn-sm btn-secondary dim-btn" data-dim="dc_ai_response_type">Response Type</button>
+            <button class="btn btn-sm btn-secondary dim-btn" data-dim="apiproxy">API Proxy</button>
+          </div>
+          <input type="text" id="analytics-search" class="search-input" placeholder="Filter dimension rows...">
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th id="th-dim-name">Model Name</th>
+                <th>Total Tokens</th>
+                <th>Total Spend</th>
+                <th>Avg TTFT (Latency)</th>
+                <th>Requests</th>
+                <th>Spend Share</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-table-body">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading analytics data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Model Price Lists (KVM) -->
+    <section id="tab-prices" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">AI Model Price Lists</h1>
+          <p class="section-subtitle">Maintains pricing per 1M tokens in Apigee KVM <code>AI-Config.PriceList</code></p>
+        </div>
+        <div class="action-buttons">
+          <button id="btn-load-defaults" class="btn btn-secondary" title="Populate KVM AI-Config.PriceList with standard AI model list prices">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Load List Price Defaults
+          </button>
+          <button id="btn-open-add-model" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Model
+          </button>
+          <button id="btn-open-calculator" class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path></svg>
+            Cost Estimator
+          </button>
+          <button id="btn-view-raw-json" class="btn btn-secondary">Raw JSON</button>
+          <button id="btn-open-deploy-kvm" class="btn btn-primary" style="background-color: var(--success);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save & Deploy to Environments
+          </button>
+        </div>
+      </div>
+
+      <!-- KVM Status Card -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span id="kvm-status-dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: var(--success);"></span>
+          <span style="font-size: 0.85rem;">Active KVM: <strong>AI-Config</strong> &rarr; Key: <strong>PriceList</strong> in environment <strong><span id="active-price-env">dev</span></strong></span>
+        </div>
+        <span id="kvm-status-badge" class="badge badge-green">Synced</span>
+      </div>
+
+      <!-- Price List Table -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <span style="font-weight: 600; font-size: 0.9rem;">Configured Models (<span id="model-count">0</span>)</span>
+          <input type="text" id="price-search" class="search-input" placeholder="Search model prices...">
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Model Identifier</th>
+                <th>Prompt / Request Price (per 1M)</th>
+                <th>Response / Output Price (per 1M)</th>
+                <th>Cached Prompt Price (per 1M)</th>
+                <th>Blended Rate (75% in / 25% out)</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="price-table-body">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading price list...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Apigee Products & AI Budgets -->
+    <section id="tab-products" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Apigee Products & AI Budgets</h1>
+          <p class="section-subtitle">Manage model quotas in tokens or money amounts with automatic live conversion</p>
+        </div>
+        <div class="action-buttons">
+          <button id="btn-open-create-product" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Create AI Product
+          </button>
+          <button id="btn-refresh-products" class="btn btn-secondary">Refresh</button>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div id="products-list-container" class="products-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+          Loading Apigee products...
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Architecture & Reference -->
+    <section id="tab-reference" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Architecture & Data Collector Reference</h1>
+          <p class="section-subtitle">How Apigee captures AI token counts, costs, and enforces model quotas</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+        <!-- Data Collectors Card -->
+        <div class="table-card" style="margin-bottom: 0;">
+          <div class="table-toolbar">
+            <span style="font-weight: 600;">Standard AI Data Collectors</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Collector Name</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody id="collectors-table-body">
+                <tr><td><code>dc_ai_model</code></td><td><span class="badge badge-gray">STRING</span></td><td>AI model requested (e.g. gemini-1.5-pro)</td></tr>
+                <tr><td><code>dc_ai_user</code></td><td><span class="badge badge-gray">STRING</span></td><td>User ID or email consuming the model</td></tr>
+                <tr><td><code>dc_ai_provider</code></td><td><span class="badge badge-gray">STRING</span></td><td>Provider of the model (Google, OpenAI, Anthropic)</td></tr>
+                <tr><td><code>dc_ai_cost_center</code></td><td><span class="badge badge-gray">STRING</span></td><td>Cost center / department of the user</td></tr>
+                <tr><td><code>dc_ai_total_token_count</code></td><td><span class="badge badge-gray">INTEGER</span></td><td>Total token count (Prompt + Response)</td></tr>
+                <tr><td><code>dc_ai_prompt_token_count</code></td><td><span class="badge badge-gray">INTEGER</span></td><td>Input prompt token count</td></tr>
+                <tr><td><code>dc_ai_response_token_count</code></td><td><span class="badge badge-gray">INTEGER</span></td><td>Output response token count</td></tr>
+                <tr><td><code>dc_ai_response_type</code></td><td><span class="badge badge-gray">STRING</span></td><td>Streaming or non-streaming</td></tr>
+                <tr><td><code>dc_ai_time_first_token</code></td><td><span class="badge badge-gray">INTEGER</span></td><td>Time to first token (TTFT) in ms</td></tr>
+                <tr><td><code>dc_ai_request_cost</code></td><td><span class="badge badge-gray">FLOAT</span></td><td>Cost of input prompt tokens in USD</td></tr>
+                <tr><td><code>dc_ai_response_cost</code></td><td><span class="badge badge-gray">FLOAT</span></td><td>Cost of generated response tokens in USD</td></tr>
+                <tr><td><code>dc_ai_total_cost</code></td><td><span class="badge badge-gray">FLOAT</span></td><td>Total cost of the call in USD</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Integration Guide Card -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-title">Apigee Proxy Integration Snippet</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Load pricing from KVM <code>AI-Config</code>, calculate costs based on usage tokens, and set variables for <code>DataCapture</code>:
+          </p>
+          <pre style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.8rem; overflow-x: auto; color: var(--text-primary); line-height: 1.4;"><code>// Read KVM PriceList
+var priceListJson = context.getVariable("kvm.AI-Config.PriceList");
+var prices = JSON.parse(priceListJson || "{}");
+
+var model = context.getVariable("ai.model") || "default";
+var modelPricing = prices[model] || prices["default"] || {
+  requestPerMillionTokens: 1.0,
+  responsePerMillionTokens: 3.0
+};
+
+var promptTokens = parseInt(context.getVariable("ai.promptTokenCount") || "0");
+var responseTokens = parseInt(context.getVariable("ai.responseTokenCount") || "0");
+
+var reqCost = (promptTokens / 1000000.0) * modelPricing.requestPerMillionTokens;
+var respCost = (responseTokens / 1000000.0) * modelPricing.responsePerMillionTokens;
+var totalCost = reqCost + respCost;
+
+context.setVariable("ai.requestCost", reqCost.toFixed(6));
+context.setVariable("ai.responseCost", respCost.toFixed(6));
+context.setVariable("ai.totalCost", totalCost.toFixed(6));</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Users & Groups Section -->
+    <section id="tab-developers" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Users & Groups Management</h1>
+          <p class="section-subtitle">
+            Manage Apigee users, developer groups, registered apps, and credential subscriptions to AI products with live spend & token analytics.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <button id="btn-refresh-developers" class="btn btn-secondary btn-sm" title="Refresh Developer Directory">
+            <svg class="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <span id="btn-refresh-dev-text">Refresh</span>
+          </button>
+          <button id="btn-open-create-developer" class="btn btn-primary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Developer
+          </button>
+        </div>
+      </div>
+
+      <!-- Developer KPI Summary Row -->
+      <div class="kpi-grid">
+        <div class="kpi-card" id="kpi-total-devs">
+          <div class="kpi-label">Active Developers</div>
+          <div class="kpi-value" id="val-total-devs">--</div>
+          <div class="kpi-meta">Registered in Apigee Org</div>
+        </div>
+        <div class="kpi-card" id="kpi-total-apps">
+          <div class="kpi-label">Registered Apps</div>
+          <div class="kpi-value" id="val-total-apps">--</div>
+          <div class="kpi-meta">Client applications</div>
+        </div>
+        <div class="kpi-card" id="kpi-total-dev-spend">
+          <div class="kpi-label">Total Developer Spend</div>
+          <div class="kpi-value text-accent" id="val-total-dev-spend">--</div>
+          <div class="kpi-meta">AI model cost in selected period</div>
+        </div>
+        <div class="kpi-card" id="kpi-total-dev-tokens">
+          <div class="kpi-label">Total Tokens Consumed</div>
+          <div class="kpi-value" id="val-total-dev-tokens">--</div>
+          <div class="kpi-meta">Prompt & response tokens</div>
+        </div>
+      </div>
+
+      <!-- Developers Directory Card -->
+      <div class="chart-card">
+        <div class="chart-card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span class="chart-title">Developer Directory</span>
+            <span id="badge-dev-count" class="badge badge-blue">0 Developers</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex: 1; max-width: 380px;">
+            <input type="text" id="input-search-devs" class="form-input" style="padding: 0.4rem 0.75rem; font-size: 0.85rem;" placeholder="Search by email, name, or app...">
+          </div>
+        </div>
+
+        <div class="table-container" style="margin-top: 0.5rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Developer</th>
+                <th>Status</th>
+                <th>Apps</th>
+                <th>Total AI Spend</th>
+                <th>Token Usage</th>
+                <th>API Calls</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-developers">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= DIALOGS (MODALS) ================= -->
+
+  <!-- 1. Dialog: Add / Edit Model Price -->
+  <dialog id="modal-model-price" closedby="any" aria-labelledby="modal-price-title">
+    <form id="form-model-price" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-price-title" class="dialog-title">Add / Edit Model Price</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label class="form-label" for="price-model-name">Model Identifier</label>
+          <input type="text" id="price-model-name" class="form-input" placeholder="e.g. gemini-1.5-pro or default" required>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Use "default" to specify the fallback pricing.</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="price-req">Prompt Price / 1M ($)</label>
+            <input type="number" step="0.0001" min="0" id="price-req" class="form-input" placeholder="1.25" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="price-resp">Response Price / 1M ($)</label>
+            <input type="number" step="0.0001" min="0" id="price-resp" class="form-input" placeholder="5.00" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="price-cached">Cached Prompt Price / 1M ($)</label>
+          <input type="number" step="0.0001" min="0" id="price-cached" class="form-input" placeholder="0.3125 (optional)">
+        </div>
+
+        <div class="conversion-box">
+          <div class="conversion-title">Effective Blended Preview</div>
+          <div class="conversion-display">
+            <div class="conversion-item">
+              <div class="conversion-big" id="price-preview-blended">$0.00</div>
+              <div class="conversion-sub">per 1M tokens (75/25 split)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Price</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 2. Dialog: Deploy KVM PriceList to Environments -->
+  <dialog id="modal-deploy-kvm" closedby="any" aria-labelledby="modal-deploy-title">
+    <form id="form-deploy-kvm" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-deploy-title" class="dialog-title">Save & Deploy Price List</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          This will write the JSON price list to the Apigee KeyValueMap <code>AI-Config.PriceList</code> in the selected environments. If the KVM or entry does not exist, it will be automatically created.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Target Environments</label>
+          <div id="deploy-env-checkboxes" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+            <!-- Checkboxes generated dynamically -->
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="background-color: var(--success);">Confirm & Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 3. Dialog: View / Edit Raw JSON -->
+  <dialog id="modal-raw-json" closedby="any" aria-labelledby="modal-json-title">
+    <form id="form-raw-json" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-json-title" class="dialog-title">Raw Price List JSON</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label class="form-label" for="raw-json-editor">JSON Structure</label>
+          <textarea id="raw-json-editor" class="form-input" style="height: 280px; font-family: monospace; font-size: 0.8rem; white-space: pre;" required></textarea>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Apply JSON</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 4. Dialog: Cost Estimator / Quick Calculator -->
+  <dialog id="modal-calculator" closedby="any" aria-labelledby="modal-calc-title">
+    <div class="dialog-header">
+      <h2 id="modal-calc-title" class="dialog-title">AI Cost Estimator</h2>
+      <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="calc-prompt-tokens">Input Prompt Tokens</label>
+          <input type="number" id="calc-prompt-tokens" class="form-input" value="100000" min="0" step="1000">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="calc-resp-tokens">Output Response Tokens</label>
+          <input type="number" id="calc-resp-tokens" class="form-input" value="20000" min="0" step="1000">
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 250px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Prompt Cost</th>
+              <th>Output Cost</th>
+              <th>Total Cost</th>
+            </tr>
+          </thead>
+          <tbody id="calc-results-body">
+            <!-- Results populated in JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button type="button" class="btn btn-secondary close-dialog-btn">Close</button>
+    </div>
+  </dialog>
+
+  <!-- 5. Dialog: Edit Product AI Model Budget (Bidirectional Automatic Conversion) -->
+  <dialog id="modal-edit-budget" class="dialog-wide" closedby="any" aria-labelledby="modal-budget-title">
+    <form id="form-edit-budget" class="dialog-form">
+      <div class="dialog-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <h2 id="modal-budget-title" class="dialog-title" style="margin: 0;">Manage AI Model Budgets</h2>
+          <span id="budget-product-badge" class="badge badge-blue">Product</span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <div style="font-weight: 600; font-size: 0.9rem;">Model Quota Allocations</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Configure quotas in either tokens or dollar amounts with real-time conversion</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div id="modal-budget-total-summary" style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+              Total Monthly Budget: <strong id="modal-total-monthly-budget" style="color: var(--brand-primary); font-size: 0.95rem;">$0.00 / mo</strong>
+            </div>
+            <button type="button" id="btn-add-model-to-product" class="btn btn-secondary btn-sm">
+              + Add Model Quota
+            </button>
+          </div>
+        </div>
+
+        <!-- Models Container -->
+        <div id="product-models-container" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Model budget cards dynamically injected -->
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+          <label class="form-label">Write Changes to Environments</label>
+          <div id="budget-env-checkboxes" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <!-- Env checkboxes -->
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes to Apigee Product</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 6. Dialog: Create New AI Product -->
+  <dialog id="modal-create-product" class="dialog-wide" closedby="any" aria-labelledby="modal-create-title">
+    <form id="form-create-product" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-create-title" class="dialog-title">Create AI API Product</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label class="form-label" for="new-prod-name">Product Name (Identifier)</label>
+          <input type="text" id="new-prod-name" class="form-input" placeholder="e.g. enterprise-ai-tier" required pattern="[a-zA-Z0-9_-]+">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-prod-display">Display Name</label>
+          <input type="text" id="new-prod-display" class="form-input" placeholder="e.g. Enterprise AI Tier" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-prod-desc">Description</label>
+          <input type="text" id="new-prod-desc" class="form-input" placeholder="Access to Gemini and Claude models with budget limits">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-prod-proxy">API Proxy Target</label>
+          <input type="text" id="new-prod-proxy" class="form-input" value="REST-AI-Completions" placeholder="Proxy name handling completions">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Attach to Environments</label>
+          <div id="new-prod-env-checkboxes" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <!-- Env checkboxes -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Initial Model Quotas</label>
+          <div id="new-prod-models-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <!-- Rows of model + budget -->
+          </div>
+          <button type="button" id="btn-add-initial-model" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem;">
+            + Add Model
+          </button>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Product</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 7. Dialog: Create Developer -->
+  <dialog id="modal-create-developer" closedby="any" aria-labelledby="modal-dev-create-title">
+    <form id="form-create-developer" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-dev-create-title" class="dialog-title">Register New Developer</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label class="form-label" for="new-dev-email">Email Address <span style="color: var(--accent-red); font-weight: bold;">*</span></label>
+          <input type="email" id="new-dev-email" class="form-input" placeholder="user@company.com" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="new-dev-firstname">First Name</label>
+            <input type="text" id="new-dev-firstname" class="form-input" placeholder="Jane">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-dev-lastname">Last Name</label>
+            <input type="text" id="new-dev-lastname" class="form-input" placeholder="Doe">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-dev-username">Username (Optional)</label>
+          <input type="text" id="new-dev-username" class="form-input" placeholder="Defaults to email if blank">
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Developer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 8. Dialog: Developer Detail (Apps & Credentials) -->
+  <dialog id="modal-developer-detail" class="dialog-wide" closedby="any" aria-labelledby="modal-dev-detail-title">
+    <div class="dialog-form" style="display: flex; flex-direction: column; height: 100%;">
+      <div class="dialog-header" style="flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <h2 id="modal-dev-detail-title" class="dialog-title">Developer Apps & Credentials</h2>
+          <div id="modal-dev-subtitle" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;"></div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" id="btn-open-create-app" class="btn btn-primary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            + Register New App
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+        </div>
+      </div>
+
+      <!-- Developer Spend Summary Banner -->
+      <div id="dev-detail-banner" style="background: var(--bg-card-alt); border-bottom: 1px solid var(--border-color); padding: 0.85rem 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="dialog-body" style="padding: 1.25rem;">
+        <div id="dev-apps-loading" style="text-align: center; padding: 2rem; display: none;">
+          <div class="spinner-sm" style="margin: 0 auto 0.5rem;"></div>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">Loading apps & credential metrics...</span>
+        </div>
+        <div id="dev-apps-empty" style="text-align: center; padding: 2.5rem; display: none; color: var(--text-muted);">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.5rem; opacity: 0.5;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <div style="font-weight: 600;">No Registered Apps</div>
+          <div style="font-size: 0.8rem; margin-top: 0.25rem;">This developer does not have any apps registered yet.</div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-empty-create-app" style="margin-top: 1rem;">+ Register First App</button>
+        </div>
+        <div id="dev-apps-container" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Dynamically populated app cards -->
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 9. Dialog: Create App for Developer -->
+  <dialog id="modal-create-app" closedby="any" aria-labelledby="modal-app-create-title">
+    <form id="form-create-app" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-app-create-title" class="dialog-title">Register App for Developer</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label class="form-label">Developer</label>
+          <input type="text" id="create-app-dev-email" class="form-input" readonly style="background: var(--bg-card-alt); font-weight: 600;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="create-app-name">App Name <span style="color: var(--accent-red); font-weight: bold;">*</span></label>
+          <input type="text" id="create-app-name" class="form-input" placeholder="e.g. Finance-AI-Assistant" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subscribe to API Products</label>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Select products to assign to this app's credential key:</div>
+          <div id="create-app-products-list" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 220px; overflow-y: auto; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-card-alt);">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create App & Key</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 10. Dialog: Manage Key Subscriptions -->
+  <dialog id="modal-manage-subscriptions" closedby="any" aria-labelledby="modal-sub-title">
+    <form id="form-manage-subscriptions" class="dialog-form">
+      <div class="dialog-header">
+        <h2 id="modal-sub-title" class="dialog-title">Manage Product Subscriptions</h2>
+        <button type="button" class="btn btn-secondary btn-sm close-dialog-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; margin-bottom: 1rem; font-size: 0.8rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">App:</span>
+            <strong id="manage-sub-app-name" style="color: var(--text-primary);">--</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Consumer Key:</span>
+            <code id="manage-sub-key-snippet" style="font-family: monospace; color: var(--brand-primary); font-size: 0.75rem;">--</code>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subscribed API Products</label>
+          <div id="manage-sub-products-list" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 250px; overflow-y: auto; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-card-alt);">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary close-dialog-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Subscriptions</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
